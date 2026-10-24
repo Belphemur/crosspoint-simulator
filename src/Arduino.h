@@ -76,6 +76,9 @@ inline int digitalRead(int /*pin*/) { return 1; }
 inline void pinMode(int /*pin*/, int /*mode*/) {}
 inline void digitalWrite(int /*pin*/, int /*level*/) {}
 inline void analogWrite(int /*pin*/, int /*val*/) {}
+// Native builds have no ADC. Reads return 0, matching a ladder input that
+// never reaches a press threshold (see esp_adc_cal.h for the attenuation stub).
+inline int analogRead(uint8_t /*pin*/) { return 0; }
 
 // Flash-memory read shims (ESP32's pgmspace.h). On the host, flash == RAM.
 #define pgm_read_byte(addr) (*(const unsigned char *)(addr))

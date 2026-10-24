@@ -29,4 +29,6 @@ class TwoWire {
   int read() { return 0; }
 };
 
-extern TwoWire Wire;
+// C++17 inline variable: the header is included from many translation units
+// and the simulator has no definition elsewhere for the bus object.
+inline TwoWire Wire;
