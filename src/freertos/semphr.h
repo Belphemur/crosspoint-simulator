@@ -131,6 +131,16 @@ inline bool xSemaphoreGive(SemaphoreHandle_t sem) {
   return true;
 }
 
+// ISR flavor of give: on the host the ISR runs on the same thread, so this is
+// the regular give plus the pdFALSE "no task woken" report.
+inline BaseType_t xSemaphoreGiveFromISR(SemaphoreHandle_t sem,
+                                        BaseType_t *woken) {
+  if (woken)
+    *woken = 0;
+  xSemaphoreGive(sem);
+  return 1;
+}
+
 inline TaskHandle_t xSemaphoreGetMutexHolder(SemaphoreHandle_t sem) {
   if (!sem || sem->kind != SimSemaphoreKind::Mutex)
     return nullptr;

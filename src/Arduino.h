@@ -7,6 +7,7 @@
 #include <cstdarg>
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
 #include <string>
 #include <thread>
 
@@ -72,18 +73,40 @@ inline void configTzTime(const char *, const char *) {}
 
 // Native builds have no GPIO pins. Treat every input as released, matching the
 // idle pull-up state used by the button diagnostics in firmware startup.
+#define CHANGE 1
+// Print number bases (Arduino core constants).
+#define DEC 10
+#define HEX 16
+#define OCT 8
+#define BIN 2
+// Pin-constant defaults from the ESP32 core's pins_arduino.h. Meaningless on
+// the host, but SdFat and other libraries name them as default arguments.
+// (SDA/SCL are NOT defined here: board headers define them as constexpr ints.)
+#define SS 5
+#define MOSI 23
+#define MISO 19
+#define SCK 18
 inline int digitalRead(int /*pin*/) { return 1; }
 inline void pinMode(int /*pin*/, int /*mode*/) {}
 inline void digitalWrite(int /*pin*/, int /*level*/) {}
 inline void analogWrite(int /*pin*/, int /*val*/) {}
 // Native builds have no ADC. Reads return 0, matching a ladder input that
-// never reaches a press threshold (see esp_adc_cal.h for the attenuation stub).
+// never reaches a press threshold. The attenuation/calibration surface lives
+// in esp_adc_cal.h, which the Arduino-ESP32 core exposes through this header.
+#include "esp_adc_cal.h"
 inline int analogRead(uint8_t /*pin*/) { return 0; }
+inline void delayMicroseconds(uint32_t /*us*/) {}
+// Interrupt attachments are host no-ops: nothing on the simulator raises a
+// GPIO edge. The BUSY-line ISR paths (EpdBus) compile but never fire.
+using esp_interrupt_f = void (*)();
+inline void attachInterrupt(int /*pin*/, void (* /*isr*/)(), int /*mode*/) {}
+inline void detachInterrupt(int /*pin*/) {}
+inline int digitalPinToInterrupt(int pin) { return pin; }
 
 // Flash-memory read shims (ESP32's pgmspace.h). On the host, flash == RAM.
-#define pgm_read_byte(addr) (*(const unsigned char *)(addr))
-#define pgm_read_word(addr) (*(const unsigned short *)(addr))
-#define pgm_read_ptr(addr) (*(const void *const *)(addr))
+// All definitions live in avr/pgmspace.h (the compatibility include some
+// libraries hard-code); this header just pulls them in.
+#include "avr/pgmspace.h"
 
 // ESP-IDF FreeRTOS port stubs used by firmware source code.
 inline uint32_t xPortGetCoreID() { return 0; }

@@ -25,3 +25,13 @@ static inline void esp_deep_sleep_start(void) {}
 static inline esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause(void) {
   return ESP_SLEEP_WAKEUP_TIMER;
 }
+
+// EXT1 wake polarity (esp_sleep.h in IDF v5). The simulator never enters a
+// real sleep, so arming and isolating are no-ops.
+typedef enum {
+  ESP_EXT1_WAKEUP_ALL_LOW = 0,
+  ESP_EXT1_WAKEUP_ANY_HIGH = 1,
+  ESP_EXT1_WAKEUP_ANY_LOW = 2,  // IDF v5.x name for the ANY_LOW trigger
+} esp_sleep_ext1_wakeup_mode_t;
+
+static inline void esp_sleep_config_gpio_isolate(void) {}

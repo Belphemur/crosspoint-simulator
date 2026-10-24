@@ -28,6 +28,10 @@ using TickType_t = uint32_t;
 #define pdPASS 1
 #define pdFAIL 0
 
+// ISR-entry yield: on the host the "ISR" runs on the same thread, so there is
+// nothing to schedule after it returns.
+inline void portYIELD_FROM_ISR() {}
+
 // ESP-IDF's portMUX_TYPE is a spinlock used with taskENTER_CRITICAL /
 // taskEXIT_CRITICAL to guard data shared between tasks (and, on multi-core
 // targets, cores). The simulator has no real critical-section primitive, so
@@ -57,3 +61,8 @@ struct SimTaskHandle {
   const char *name = "sim-task";
 };
 typedef SimTaskHandle *TaskHandle_t;
+
+// The ESP-IDF FreeRTOS port's FreeRTOS.h pulls in the task API; SDCardManager
+// and other SDK libraries rely on that transitive include. Included last so
+// task.h sees the tick/type definitions above regardless of include order.
+#include "task.h"

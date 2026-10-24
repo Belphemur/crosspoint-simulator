@@ -109,3 +109,10 @@ inline void vTaskDelay(uint32_t ticks) {
   std::this_thread::sleep_for(std::chrono::milliseconds(
       static_cast<int64_t>(ticks) * portTICK_PERIOD_MS));
 }
+
+// Static-TCB sizing type. MemoryManager only queries sizeof(StaticTask_t) when
+// carving its PSRAM stack slots; the shim never creates static tasks, so an
+// opaque aligned blob is enough.
+struct StaticTask_t {
+  alignas(8) unsigned char opaque[256];
+};

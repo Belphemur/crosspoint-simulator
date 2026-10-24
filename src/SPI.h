@@ -25,6 +25,7 @@ public:
   void write(const uint8_t *buf, uint32_t size) {
     for (uint32_t i = 0; i < size; i++) write(buf[i]);
   }
+  void writeBytes(const uint8_t *buf, uint32_t size) { write(buf, size); }
 };
 
 extern SPIClass SPI;

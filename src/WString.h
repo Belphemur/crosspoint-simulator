@@ -173,6 +173,8 @@ private:
 // the same as RAM, so this is just a marker.
 struct __FlashStringHelper {};
 #define FPSTR(str) (reinterpret_cast<const __FlashStringHelper *>(str))
+// Flash is RAM on the host; F() just tags the literal for Print's overload set.
+#define F(str) FPSTR(str)
 
 inline String operator+(const String &lhs, const String &rhs) {
   String res(lhs);

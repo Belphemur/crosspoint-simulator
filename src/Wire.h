@@ -15,6 +15,10 @@ class TwoWire {
   void begin() {}
   void begin(int) {}
   void begin(int, int) {}
+  void begin(int, int, uint32_t) {}
+  void end() {}
+  // Arduino-ESP32's (intentionally) misspelled timeout setter.
+  void setTimeOut(uint16_t) {}
 
   void beginTransmission(uint8_t) {}
   void beginTransmission(int) {}
