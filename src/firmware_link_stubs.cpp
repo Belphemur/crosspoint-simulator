@@ -4,31 +4,16 @@
 // own definitions to satisfy the linker.
 
 #include <ContentProtection.h>
-#include <Crypto.h>
-#include <LcpLicense.h>
 #include <Logging.h>
 
 #include <cstdint>
 
-namespace freeink::content {
-
-// Protected-book key operations are unavailable in the host crypto backend.
-bool parseLcpLicense(const char*, size_t, LcpLicense*) {
-  LOG_ERR("LCP", "License import unsupported in simulator");
-  return false;
-}
-
-void lcpUserKey(Crypto& crypto, const char* passphrase, size_t len, uint8_t out[32]) {
-  crypto.sha256(reinterpret_cast<const uint8_t*>(passphrase), len, out);
-}
-
-bool lcpUnwrapContentKey(Crypto&, const uint8_t[32], const uint8_t[32], const uint8_t[12], const uint8_t[32],
-                         const uint8_t[16], uint8_t[32]) {
-  LOG_ERR("LCP", "Key unwrap unsupported in simulator");
-  return false;
-}
-
-}  // namespace freeink::content
+// NOTE: parseLcpLicense/lcpUserKey/lcpUnwrapContentKey used to be stubbed here
+// while the SDK's LcpLicense.cpp could not compile in the simulator build; the
+// SDK library now compiles (WolfsslCrypto.h's SIMULATOR branch) and defines
+// them, so re-adding them here is a multiple-definition link error.
+// openProtectedBook stays: the firmware's lib/Epub/ContentProtection.cpp is
+// dropped by the skip middleware and the SDK lib never defines it.
 
 std::unique_ptr<freeink::content::ContentDecryptor> freeink::content::openProtectedBook(const std::string&,
                                                                                         std::string& err) {
