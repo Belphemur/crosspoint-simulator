@@ -23,6 +23,10 @@
   ((uint32_t)((uint32_t)(xTimeInMs) / (uint32_t)portTICK_PERIOD_MS))
 
 using BaseType_t = int;
+using UBaseType_t = uint32_t;
+using TickType_t = uint32_t;
+#define pdPASS 1
+#define pdFAIL 0
 
 // ESP-IDF's portMUX_TYPE is a spinlock used with taskENTER_CRITICAL /
 // taskEXIT_CRITICAL to guard data shared between tasks (and, on multi-core

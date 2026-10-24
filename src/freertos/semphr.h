@@ -38,6 +38,7 @@ struct SimBinarySemaphore : SimSemaphoreBase {
 };
 
 typedef SimSemaphoreBase *SemaphoreHandle_t;
+#define vSemaphoreDelete(xSemaphore) vQueueDelete((xSemaphore))
 // The static API currently used by firmware is xSemaphoreCreateMutexStatic.
 using StaticSemaphore_t = SimMutex;
 

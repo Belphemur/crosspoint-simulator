@@ -54,6 +54,7 @@ public:
 
   // Start button GPIO and setup SPI for screen and SD card
   void begin();
+  void prepareForDeepSleep();
 
   // Clears the per-frame press/release edge latches. Must be called exactly
   // once per frame (before the firmware's loop()), NOT on every update().
@@ -90,6 +91,12 @@ public:
   bool wasSwipe(float &nxStart, float &nyStart, float &nxEnd,
                 float &nyEnd) const;
   bool wasTouchActivity() const;
+  void consumeTouchFrame();
+  bool anyPhysicalButtonHeld() const;
+  bool setTouchSleep(bool /*asleep*/) { return true; }
+  bool wakeTouch() { return true; }
+  bool isTouchAsleep() const { return false; }
+  bool isTouchContactActive() const { return false; }
   void setSharedConfirmPowerShortPressEmitsPower(bool enabled);
   bool consumeSimulatorSleepRequest();
 
@@ -100,6 +107,9 @@ public:
   // The host wake path is synthetic, so verification always succeeds.
   bool verifyPowerButtonWakeup();
 
+  bool wokeFromDeepSleep() const { return false; }
+  bool coldBootImpliesPowerButton() const { return false; }
+
   // Check if USB is connected
   bool isUsbConnected() const;
 
@@ -107,7 +117,7 @@ public:
   bool wasUsbStateChanged() const;
   void pollUsbState() {}
 
-  enum class WakeupReason { PowerButton, AfterFlash, AfterUSBPower, Other };
+  enum class WakeupReason { PowerButton, AfterFlash, AfterUSBPower, Timer, Other };
 
   WakeupReason getWakeupReason() const;
 

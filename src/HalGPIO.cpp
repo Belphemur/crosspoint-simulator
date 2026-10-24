@@ -925,5 +925,19 @@ void HalGPIO::startDeepSleep() {
   }
 }
 bool HalGPIO::verifyPowerButtonWakeup() { return true; }
+void HalGPIO::prepareForDeepSleep() {}
+void HalGPIO::consumeTouchFrame() {
+  touchState.pressedThisFrame = false;
+  touchState.releasedThisFrame = false;
+  touchState.longPressThisFrame = false;
+  touchState.activityThisFrame = false;
+}
+bool HalGPIO::anyPhysicalButtonHeld() const {
+  for (int i = 0; i < NUM_BUTTONS; i++) {
+    if (syntheticButtonDown[i])
+      return true;
+  }
+  return false;
+}
 
 HalGPIO gpio;

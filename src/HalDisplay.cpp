@@ -427,6 +427,8 @@ void HalDisplay::displayBufferAsync(RefreshMode mode) {
 void HalDisplay::waitRefreshComplete() {}
 
 bool HalDisplay::supportsAsyncRefresh() const { return false; }
+bool HalDisplay::refreshBusy() const { return false; }
+void HalDisplay::requestResync() {}
 
 void HalDisplay::displayWindow(int, int, int, int) {
   refreshDisplay(RefreshMode::FAST_REFRESH, false);
@@ -508,6 +510,7 @@ void HalDisplay::presentIfNeeded() {
 bool HalDisplay::shouldQuit() const { return quitRequested.load(); }
 
 void HalDisplay::deepSleep() { presentIfNeeded(); }
+bool HalDisplay::powerOffScreen() const { return false; }
 
 uint8_t *HalDisplay::getFrameBuffer() const {
   if (frameBufferLent) {

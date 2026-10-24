@@ -1,6 +1,15 @@
 #pragma once
 #include "Print.h"
 #include "WString.h"
+
+// Arduino's Printable interface, required by ArduinoJson for converting
+// objects that implement printTo() into JSON strings.
+class Printable {
+public:
+  virtual ~Printable() = default;
+  virtual size_t printTo(Print &p) const = 0;
+};
+
 class Stream : public Print {
 public:
   virtual ~Stream() = default;

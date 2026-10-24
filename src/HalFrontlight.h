@@ -2,6 +2,10 @@
 
 #include <Arduino.h>
 
+// Mirrors the firmware's HalFrontlight.h constant. lib/hal is ignored in the
+// simulator build, so the simulator must define it here for FrontlightControl.cpp.
+constexpr uint8_t FRONTLIGHT_MIN_BRIGHTNESS = 1;
+
 // Host model of device frontlight state. The framebuffer is
 // unchanged; this class preserves the firmware-visible brightness, warmth, and
 // on/off state so the quick panel and persisted settings can be exercised.
