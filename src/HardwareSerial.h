@@ -39,3 +39,4 @@ public:
 using HardwareSerial = HWCDC;
 
 extern HWCDC Serial;
+extern HWCDC Serial0;

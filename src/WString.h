@@ -168,6 +168,14 @@ private:
   mutable size_t readPos = 0;
 };
 
+// Arduino's flash-string tagging type. On ESP32 this is an opaque pointer
+// that Print subclasses know how to dereference; the simulator treats flash
+// the same as RAM, so this is just a marker.
+struct __FlashStringHelper {};
+#define FPSTR(str) (reinterpret_cast<const __FlashStringHelper *>(str))
+// Flash is RAM on the host; F() just tags the literal for Print's overload set.
+#define F(str) FPSTR(str)
+
 inline String operator+(const String &lhs, const String &rhs) {
   String res(lhs);
   res += rhs.c_str();

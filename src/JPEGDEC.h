@@ -106,6 +106,22 @@ public:
 
     return 1;
   }
+  // RAM-buffer flavor of open(): decode straight from the encoded bytes.
+  int openRAM(uint8_t *data, int size, JPEG_DRAW_CALLBACK drawCb) {
+    image_ = simulator_image::DecodedImage{};
+    drawCb_ = drawCb;
+    lastError_ = 0;
+    if (!data || size <= 0 || !drawCb) {
+      lastError_ = -1;
+      return 0;
+    }
+    if (!simulator_image::decodeImageBytes(data, static_cast<size_t>(size), 1,
+                                           image_)) {
+      lastError_ = -1;
+      return 0;
+    }
+    return 1;
+  }
   void close() { image_ = simulator_image::DecodedImage{}; }
   int getWidth() const { return image_.width; }
   int getHeight() const { return image_.height; }

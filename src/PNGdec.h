@@ -98,6 +98,20 @@ public:
 
     return PNG_SUCCESS;
   }
+  // RAM-buffer flavor of open(): decode straight from the encoded bytes.
+  int openRAM(uint8_t *data, int size, PNG_DRAW_CALLBACK drawCb) {
+    image_ = simulator_image::DecodedImage{};
+    drawCb_ = drawCb;
+    lastError_ = PNG_SUCCESS;
+    if (!data || size <= 0) {
+      return lastError_ = PNG_INVALID_FILE;
+    }
+    if (!simulator_image::decodeImageBytes(data, static_cast<size_t>(size), 4,
+                                           image_)) {
+      return lastError_ = PNG_INVALID_FILE;
+    }
+    return PNG_SUCCESS;
+  }
   void close() { image_ = simulator_image::DecodedImage{}; }
   int getWidth() const { return image_.width; }
   int getHeight() const { return image_.height; }

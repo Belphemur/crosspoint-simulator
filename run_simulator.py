@@ -35,6 +35,14 @@ SIMULATOR_HTTP_PORT_OPTION = "custom_simulator_http_port"
 env.AppendUnique(CPPDEFINES=[("ARDUINOJSON_ENABLE_ARDUINO_STRING", 1)])
 projenv.AppendUnique(CPPDEFINES=[("ARDUINOJSON_ENABLE_ARDUINO_STRING", 1)])
 
+# Host GCCs (GCC 15+) default C sources to C23, where `bool` became a keyword.
+# The QRCode library's qrcode.h does `typedef unsigned char bool;` and defines
+# its own true/false constants, so C sources must stay on an older dialect.
+# This only touches C compiles (CFLAGS); C++ keeps the env's -std=gnu++2a.
+# Every C dep in this tree (miniz, pngle, tjpgd, unibreak, uzlib) is fine on C11.
+env.AppendUnique(CFLAGS=["-std=gnu11"])
+projenv.AppendUnique(CFLAGS=["-std=gnu11"])
+
 # The web manager uses the SDK's header-only crypto interface and base64 helpers.
 content_headers = os.path.join(
     env.subst("$PROJECT_DIR"), "freeink-sdk", "libs", "book",

@@ -10,9 +10,14 @@
 
 #include <cstdint>
 
+// Protected-book key operations are unavailable in the host crypto backend.
+// The SDK's ContentProtection lib does not compile into the simulator build
+// (its wolfSSL backend cannot link on the host); its headers are kept on the
+// include path explicitly so these declarations and the openProtectedBook
+// link stub below can stand in for lib/Epub/ContentProtection.cpp, which the
+// skip middleware drops.
 namespace freeink::content {
 
-// Protected-book key operations are unavailable in the host crypto backend.
 bool parseLcpLicense(const char*, size_t, LcpLicense*) {
   LOG_ERR("LCP", "License import unsupported in simulator");
   return false;

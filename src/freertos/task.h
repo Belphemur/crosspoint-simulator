@@ -83,6 +83,17 @@ inline void vTaskDelete(TaskHandle_t h) {
     delete h;
   }
 }
+
+// xTaskNotifyGive: increments the task's notification counter (eIncrement action).
+// Equivalent to xTaskNotify(handle, 1, eIncrement) but matches the Arduino/ESP-IDF
+// API name the firmware source calls directly.
+inline void xTaskNotifyGive(TaskHandle_t handle) {
+  if (!handle)
+    return;
+  std::lock_guard<std::mutex> lk(handle->mtx);
+  handle->notifyCount++;
+  handle->cv.notify_one();
+}
 inline unsigned int uxTaskGetStackHighWaterMark(TaskHandle_t) { return 2048; }
 inline void vTaskList(char *) {}
 // vTaskDelay's argument is in FreeRTOS ticks, and portTICK_PERIOD_MS
@@ -98,3 +109,10 @@ inline void vTaskDelay(uint32_t ticks) {
   std::this_thread::sleep_for(std::chrono::milliseconds(
       static_cast<int64_t>(ticks) * portTICK_PERIOD_MS));
 }
+
+// Static-TCB sizing type. MemoryManager only queries sizeof(StaticTask_t) when
+// carving its PSRAM stack slots; the shim never creates static tasks, so an
+// opaque aligned blob is enough.
+struct StaticTask_t {
+  alignas(8) unsigned char opaque[256];
+};

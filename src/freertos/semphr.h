@@ -5,6 +5,7 @@
 #include <mutex>
 
 #include "FreeRTOS.h"
+#include "queue.h"
 #include "task.h"
 
 // FreeRTOS hands out mutexes and binary semaphores through the same
@@ -38,6 +39,7 @@ struct SimBinarySemaphore : SimSemaphoreBase {
 };
 
 typedef SimSemaphoreBase *SemaphoreHandle_t;
+#define vSemaphoreDelete(xSemaphore) vQueueDelete((xSemaphore))
 // The static API currently used by firmware is xSemaphoreCreateMutexStatic.
 using StaticSemaphore_t = SimMutex;
 
@@ -128,6 +130,16 @@ inline bool xSemaphoreGive(SemaphoreHandle_t sem) {
   }
   mtx->mtx.unlock();
   return true;
+}
+
+// ISR flavor of give: on the host the ISR runs on the same thread, so this is
+// the regular give plus the pdFALSE "no task woken" report.
+inline BaseType_t xSemaphoreGiveFromISR(SemaphoreHandle_t sem,
+                                        BaseType_t *woken) {
+  if (woken)
+    *woken = 0;
+  xSemaphoreGive(sem);
+  return 1;
 }
 
 inline TaskHandle_t xSemaphoreGetMutexHolder(SemaphoreHandle_t sem) {

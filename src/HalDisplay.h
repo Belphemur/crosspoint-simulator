@@ -72,6 +72,8 @@ public:
   void displayBufferAsync(RefreshMode mode = RefreshMode::FAST_REFRESH);
   void waitRefreshComplete();
   bool supportsAsyncRefresh() const;
+  bool refreshBusy() const;
+  void requestResync();
   void displayWindow(int x, int y, int w, int h);
   void refreshDisplay(RefreshMode mode = RefreshMode::FAST_REFRESH,
                       bool turnOffScreen = false);
@@ -79,6 +81,7 @@ public:
 
   // Power management
   void deepSleep();
+  bool powerOffScreen() const;
 
   // Access to frame buffer
   uint8_t *getFrameBuffer() const;

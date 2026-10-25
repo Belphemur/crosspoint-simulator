@@ -105,9 +105,8 @@ public:
 
   bool open(const char *p, int flags) {
     path = p;
-    // The simulator's FsApiConstants.h just includes <fcntl.h> and typedef int
-    // oflag_t, so all O_* constants are already native POSIX values — pass them
-    // straight through.
+    // `flags` arrives already translated to native POSIX values (see
+    // toPosixOpenFlags below).
     fd = ::open(path.c_str(), flags, 0666);
     if (fd < 0) {
       fprintf(stderr, "[SIM] open failed: %s (flags=0x%x errno=%d %s)\n",
@@ -333,6 +332,33 @@ bool HalFile::isOpen() const {
 }
 HalFile::operator bool() const { return isOpen(); }
 
+// Translate the SdFat-style oflag bits (see common/FsApiConstants.h — these
+// are the values firmware callers pass) into the host open(2) flag set. The
+// access-mode bits coincide (0/1/2); the modifier bits do NOT (e.g. SdFat
+// O_CREAT=0x10 is host O_EXCL), so a straight pass-through would silently
+// create-or-excl the wrong files.
+static int toPosixOpenFlags(oflag_t oflag) {
+  int flags = 0;
+  switch (oflag & O_ACCMODE) {
+    case O_WRONLY:
+      flags = O_WRONLY;
+      break;
+    case O_RDWR:
+      flags = O_RDWR;
+      break;
+    case O_RDONLY:
+    default:
+      flags = O_RDONLY;
+      break;
+  }
+  if (oflag & O_APPEND) flags |= O_APPEND;
+  if (oflag & O_CREAT) flags |= O_CREAT;
+  if (oflag & O_TRUNC) flags |= O_TRUNC;
+  if (oflag & O_EXCL) flags |= O_EXCL;
+  if (oflag & O_SYNC) flags |= O_SYNC;
+  return flags;
+}
+
 HalFile HalStorage::open(const char *path, const oflag_t oflag) {
   std::string full = resolveStoragePath(path);
   HalFile f;
@@ -346,7 +372,14 @@ HalFile HalStorage::open(const char *path, const oflag_t oflag) {
   if (stat(full.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) {
     f.impl->openAsDir(full.c_str());
   } else {
-    f.impl->open(full.c_str(), oflag);
+    if (!f.impl->open(full.c_str(), toPosixOpenFlags(oflag))) {
+      return f;
+    }
+    if (oflag & O_AT_END) {
+      // SdFat's O_AT_END: position the handle at EOF after opening (used by
+      // the clippings append path and the web-server upload resume path).
+      (void)f.seek64(f.fileSize64());
+    }
   }
   return f;
 }
