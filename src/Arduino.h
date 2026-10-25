@@ -145,6 +145,22 @@ struct ESPMock {
 };
 extern ESPMock ESP;
 
+// ESP-IDF makes the heap-caps API ubiquitous; the sim's host shim mirrors it
+// so BOARD_HAS_PSRAM code paths (PSRAM-backed stores, HomeActivity's cover
+// buffer) compile and call straight into std::malloc with an 8 MB accounting.
+// Placed after `extern ESPMock ESP;` because the shim's heap accounting
+// reads ESP.getFreeHeap().
+#include "esp_heap_caps.h"
+
+// Arduino-ESP32 core's PSRAM API (esp32-hal-psram.h). The host sim "has"
+// the 8 MB PSRAM X4 Pro boards report in simulatorPsramBytes(); the small
+// non-PSRAM devices still run this code unconditionally, where psramFound()
+// mirrors the real hardware (no PSRAM on the plain X4).
+inline bool psramFound() { return simulatorPsramBytes() > 0; }
+inline bool psramInit() { return psramFound(); }
+inline void psramAddToHeap() {}
+inline size_t psramGetRemainingSize() { return simulatorPsramBytes(); }
+
 inline long random(long max) { return std::rand() % max; }
 
 template <typename A, typename B>

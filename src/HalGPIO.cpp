@@ -927,10 +927,13 @@ void HalGPIO::startDeepSleep() {
 bool HalGPIO::verifyPowerButtonWakeup() { return true; }
 void HalGPIO::prepareForDeepSleep() {}
 void HalGPIO::consumeTouchFrame() {
-  touchState.pressedThisFrame = false;
-  touchState.releasedThisFrame = false;
-  touchState.longPressThisFrame = false;
-  touchState.activityThisFrame = false;
+  // Documented no-op on sync builds (pinned SDK #32 consume-on-check pop
+  // protocol): the app's per-read checks own edge consumption and the frame
+  // boundary in beginFrame() owns the per-frame reset. Clearing here would
+  // wipe the edges that mappedInputManager.update() pumped at the top of the
+  // very same loop() iteration — before any activity could observe a tap,
+  // release, or long press (dead touch input).
+  return;
 }
 bool HalGPIO::anyPhysicalButtonHeld() const {
   for (int i = 0; i < NUM_BUTTONS; i++) {
