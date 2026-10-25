@@ -22,8 +22,8 @@ inline int strcmp_P(const char *a, const char *b) { return strcmp(a, b); }
 inline int strncmp_P(const char *a, const char *b, size_t n) {
   return strncmp(a, b, n);
 }
-inline char *strchr_P(const char *s, int c) { return strchr(s, c); }
-inline char *strrchr_P(const char *s, int c) { return strrchr(s, c); }
+inline char *strchr_P(const char *s, int c) { return const_cast<char *>(strchr(s, c)); }
+inline char *strrchr_P(const char *s, int c) { return const_cast<char *>(strrchr(s, c)); }
 inline size_t strlen_P(const char *s) { return strlen(s); }
 inline char *strcpy_P(char *dest, const char *src) { return strcpy(dest, src); }
 inline char *strncpy_P(char *dest, const char *src, size_t n) {

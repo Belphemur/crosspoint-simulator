@@ -5,6 +5,7 @@
 #include <mutex>
 
 #include "FreeRTOS.h"
+#include "queue.h"
 #include "task.h"
 
 // FreeRTOS hands out mutexes and binary semaphores through the same

@@ -45,8 +45,9 @@ public:
                  uint16_t h, bool fromProgmem = false) {}
   void drawImageTransparent(const uint8_t *imageData, uint16_t x, uint16_t y,
                             uint16_t w, uint16_t h, bool fromProgmem = false) {}
-  void displayBuffer(RefreshMode mode, bool turnOffScreen) {}
-  void refreshDisplay(RefreshMode mode, bool turnOffScreen) {}
+  void displayBuffer(RefreshMode mode, bool turnOffScreen = false) {}
+  void displayBufferAsync(RefreshMode mode, bool turnOffScreen = false) {}
+  void refreshDisplay(RefreshMode mode, bool turnOffScreen = false) {}
   void deepSleep() {}
   uint8_t *getFrameBuffer() {
     static uint8_t buf[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
